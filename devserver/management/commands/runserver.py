@@ -102,19 +102,6 @@ class Command(BaseCommand):
                 '--nostatic', dest='use_static_files', action='store_false', default=True,
                 help='Tells Django to NOT automatically serve static files at STATIC_URL.'),
 
-    def run_from_argv(self, argv):
-        parser = self.create_parser(argv[0], argv[1])
-        default_args = getattr(settings, 'DEVSERVER_ARGS', None)
-        if default_args:
-            options, args = parser.parse_args(default_args)
-        else:
-            options = None
-
-        options, args = parser.parse_args(argv[2:], options)
-
-        handle_default_options(options)
-        self.execute(*args, **options.__dict__)
-
     def handle(self, addrport='', *args, **options):
         if args:
             raise CommandError('Usage is runserver %s' % self.args)
