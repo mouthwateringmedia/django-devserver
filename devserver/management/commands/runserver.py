@@ -102,16 +102,14 @@ class Command(BaseCommand):
                 '--nostatic', dest='use_static_files', action='store_false', default=True,
                 help='Tells Django to NOT automatically serve static files at STATIC_URL.'),
 
-    def handle(self, addrport='', *args, **options):
-        if args:
-            raise CommandError('Usage is runserver %s' % self.args)
-
+    def handle(self, *args, **options):
+        addrport = options.get('addrport', '')
         if not addrport:
             addr = getattr(settings, 'DEVSERVER_DEFAULT_ADDR', '127.0.0.1')
             port = getattr(settings, 'DEVSERVER_DEFAULT_PORT', '8000')
-            addrport = '%s:%s' % (addr, port)
+            options['addrport'] = '%s:%s' % (addr, port)
 
-        return super(Command, self).handle(addrport=addrport, *args, **options)
+        return super(Command, self).handle(*args, **options)
 
     def get_handler(self, *args, **options):
         if int(options['verbosity']) < 1:
