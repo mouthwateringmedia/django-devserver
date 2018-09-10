@@ -158,8 +158,16 @@ class Command(BaseCommand):
                 from django.views import debug
                 debug.technical_500_response = null_technical_500_response
 
-        self.stdout.write("Validating models...\n\n")
-        self.validate(display_num_errors=True)
+        if DJANGO_VERSION < (1, 9): # validate was renamed to "check" in Django 1.9
+            self.stdout.write("Validating models...\n\n")
+            self.validate(display_num_errors=True)
+        else:
+            self.stdout.write("Performing system checks...\n\n")
+            self.check(display_num_errors=True)
+            # Need to check migrations here, so can't use the
+            # requires_migrations_check attribute.
+            self.check_migrations()
+
         self.stdout.write((
             "Django version %(version)s, using settings %(settings)r\n"
             "Running django-devserver %(devserver_version)s\n"
