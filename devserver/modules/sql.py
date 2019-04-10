@@ -27,7 +27,7 @@ from devserver import settings
 try:
     import sqlparse
 except ImportError:
-    class sqlparse:
+    class sqlparse(object):
         @staticmethod
         def format(text, *args, **kwargs):
             return text
@@ -46,6 +46,7 @@ def truncate_sql(sql, aggregates=True):
 # # get a copy of the toolbar object with access to its config dictionary
 # SQL_WARNING_THRESHOLD = getattr(settings, 'DEVSERVER_CONFIG', {}) \
 #                             .get('SQL_WARNING_THRESHOLD', 500)
+
 
 try:
     from debug_toolbar.panels.sql import DatabaseStatTracker
@@ -87,8 +88,7 @@ class DatabaseStatTracker(DatabaseStatTracker):
             stop = datetime.now()
             duration = ms_from_timedelta(stop - start)
 
-            if self.logger and (not settings.DEVSERVER_SQL_MIN_DURATION
-                    or duration > settings.DEVSERVER_SQL_MIN_DURATION):
+            if self.logger and (not settings.DEVSERVER_SQL_MIN_DURATION or duration > settings.DEVSERVER_SQL_MIN_DURATION):
                 if self.cursor.rowcount >= 0 and message is not None:
                     self.logger.debug('Found %s matching rows', self.cursor.rowcount, duration=duration)
 

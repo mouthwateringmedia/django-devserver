@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.core.management.commands.runserver import Command as BaseCommand
-from django.core.management.base import CommandError, handle_default_options
 from django.core.servers.basehttp import WSGIServer
 from django.core.handlers.wsgi import WSGIHandler
 
@@ -9,7 +8,7 @@ import sys
 import imp
 import errno
 import socket
-import SocketServer
+import socketserver
 from optparse import make_option
 
 from devserver.handlers import DevServerHandler
@@ -63,7 +62,7 @@ class Command(BaseCommand):
                 '--wsgi-app', dest='wsgi_app', default=None,
                 help='Load the specified WSGI app as the server endpoint.'),
         )
-        if any(map(lambda app: app in settings.INSTALLED_APPS, STATICFILES_APPS)):
+        if any([app in settings.INSTALLED_APPS for app in STATICFILES_APPS]):
             option_list += make_option(
                 '--nostatic', dest='use_static_files', action='store_false', default=True,
                 help='Tells Django to NOT automatically serve static files at STATIC_URL.'),
@@ -97,7 +96,7 @@ class Command(BaseCommand):
             '--wsgi-app', dest='wsgi_app', default=None,
             help='Load the specified WSGI app as the server endpoint.')
 
-        if any(map(lambda app: app in settings.INSTALLED_APPS, STATICFILES_APPS)):
+        if any([app in settings.INSTALLED_APPS for app in STATICFILES_APPS]):
             parser.add_argument(
                 '--nostatic', dest='use_static_files', action='store_false', default=True,
                 help='Tells Django to NOT automatically serve static files at STATIC_URL.'),
@@ -151,7 +150,7 @@ class Command(BaseCommand):
         if use_werkzeug:
             try:
                 from werkzeug import run_simple, DebuggedApplication
-            except ImportError, e:
+            except ImportError as e:
                 self.stderr.write("WARNING: Unable to initialize werkzeug: %s\n" % e)
                 use_werkzeug = False
             else:
@@ -202,9 +201,9 @@ class Command(BaseCommand):
                     raise
 
         if options['use_forked']:
-            mixin = SocketServer.ForkingMixIn
+            mixin = socketserver.ForkingMixIn
         else:
-            mixin = SocketServer.ThreadingMixIn
+            mixin = socketserver.ThreadingMixIn
 
         middleware = getattr(settings, 'DEVSERVER_WSGI_MIDDLEWARE', [])
         for middleware in middleware:
@@ -223,7 +222,7 @@ class Command(BaseCommand):
             else:
                 run(self.addr, int(self.port), app, mixin, ipv6=self.use_ipv6)
 
-        except wsgi_server_exc_cls, e:
+        except wsgi_server_exc_cls as e:
             # Use helpful error messages instead of ugly tracebacks.
             ERRORS = {
                 errno.EACCES: "You don't have permission to access that port.",

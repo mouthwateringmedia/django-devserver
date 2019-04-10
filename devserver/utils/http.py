@@ -1,3 +1,5 @@
+from __future__ import division
+from past.utils import old_div
 from datetime import datetime
 
 from django.conf import settings
@@ -52,7 +54,7 @@ class SlimWSGIRequestHandler(WSGIRequestHandler):
             for q in connections[alias].queries
         ]
         args = list(args) + [
-            ms_from_timedelta(duration) / 1000,
+            old_div(ms_from_timedelta(duration), 1000),
             sum(float(c.get('time', 0)) for c in queries) * 1000,
             len(queries),
         ]

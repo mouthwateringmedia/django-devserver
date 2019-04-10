@@ -1,6 +1,8 @@
+from past.utils import old_div
 from devserver.modules import DevServerModule
 from devserver.utils.time import ms_from_timedelta
 from devserver.settings import DEVSERVER_AUTO_PROFILE
+from django.template.defaultfilters import filesizeformat
 
 from datetime import datetime
 
@@ -21,7 +23,7 @@ class ProfileSummaryModule(DevServerModule):
     def process_complete(self, request):
         duration = datetime.now() - self.start
 
-        self.logger.info('Total time to render was %.2fs', ms_from_timedelta(duration) / 1000)
+        self.logger.info('Total time to render was %.2fs', old_div(ms_from_timedelta(duration), 1000))
 
 
 class LeftOversModule(DevServerModule):
@@ -40,7 +42,6 @@ class LeftOversModule(DevServerModule):
         gc.collect()
         self.logger.info('%s objects left in garbage', len(gc.garbage))
 
-from django.template.defaultfilters import filesizeformat
 
 try:
     from guppy import hpy
@@ -69,7 +70,7 @@ else:
             alloch = newh - self.oldh
             dealloch = self.oldh - newh
             self.oldh = newh
-            self.logger.info('%s allocated, %s deallocated, heap size is %s', *map(filesizeformat, [alloch.size, dealloch.size, newh.size]))
+            self.logger.info('%s allocated, %s deallocated, heap size is %s', *list(map(filesizeformat, [alloch.size, dealloch.size, newh.size])))
 
 try:
     from line_profiler import LineProfiler
@@ -104,7 +105,7 @@ else:
 
         def process_complete(self, request):
             if hasattr(request, 'devserver_profiler_run') and (DEVSERVER_AUTO_PROFILE or request.devserver_profiler_run):
-                from cStringIO import StringIO
+                from io import StringIO
                 out = StringIO()
                 if (DEVSERVER_AUTO_PROFILE):
                     request.devserver_profiler.disable_by_count()
@@ -115,8 +116,8 @@ else:
         if not hasattr(func, 'func_code'):
             return
         profiler.add_function(func)
-        if func.func_closure:
-            for cell in func.func_closure:
+        if func.__closure__:
+            for cell in func.__closure__:
                 if hasattr(cell.cell_contents, 'func_code'):
                     _unwrap_closure_and_profile(profiler, cell.cell_contents)
 

@@ -1,5 +1,7 @@
+from future import standard_library
+standard_library.install_aliases()
 import django
-import SocketServer
+import socketserver
 import os.path
 
 from django.conf import settings
@@ -7,7 +9,7 @@ from django.views.debug import linebreak_iter
 
 # Figure out some paths
 django_path = os.path.realpath(os.path.dirname(django.__file__))
-socketserver_path = os.path.realpath(os.path.dirname(SocketServer.__file__))
+socketserver_path = os.path.realpath(os.path.dirname(socketserver.__file__))
 
 
 def tidy_stacktrace(strace):

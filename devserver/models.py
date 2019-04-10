@@ -1,6 +1,5 @@
 import django
 from django.core import exceptions
-from django.core.exceptions import ImproperlyConfigured
 
 from devserver.logger import GenericLogger
 import logging
@@ -46,17 +45,17 @@ def load_modules():
         try:
             name, class_name = path.rsplit('.', 1)
         except ValueError:
-            raise exceptions.ImproperlyConfigured, '%s isn\'t a devserver module' % path
+            raise exceptions.ImproperlyConfigured('%s isn\'t a devserver module' % path)
 
         try:
             module = __import__(name, {}, {}, [''])
-        except ImportError, e:
-            raise exceptions.ImproperlyConfigured, 'Error importing devserver module %s: "%s"' % (name, e)
+        except ImportError as e:
+            raise exceptions.ImproperlyConfigured('Error importing devserver module %s: "%s"' % (name, e))
 
         try:
             cls = getattr(module, class_name)
         except AttributeError:
-            raise exceptions.ImproperlyConfigured, 'Error importing devserver module "%s" does not define a "%s" class' % (name, class_name)
+            raise exceptions.ImproperlyConfigured('Error importing devserver module "%s" does not define a "%s" class' % (name, class_name))
 
         try:
             instance = cls(GenericLogger(cls))
@@ -64,6 +63,7 @@ def load_modules():
             raise  # Bubble up problem loading panel
 
         MODULES.append(instance)
+
 
 if not MODULES:
     check_installed_apps_configuration()

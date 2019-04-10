@@ -1,4 +1,6 @@
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 
 from devserver.modules import DevServerModule
 
@@ -43,17 +45,18 @@ class RequestDumpModule(DevServerModule):
 
     def process_request(self, request):
         req = self.logger.style.SQL_KEYWORD('%s %s %s\n' % (request.method, '?'.join((request.META['PATH_INFO'], request.META['QUERY_STRING'])), request.META['SERVER_PROTOCOL']))
-        for var, val in request.META.items():
+        for var, val in list(request.META.items()):
             if var.startswith('HTTP_'):
                 var = var[5:].replace('_', '-').title()
                 req += '%s: %s\n' % (self.logger.style.SQL_KEYWORD(var), val)
         if request.META['CONTENT_LENGTH']:
             req += '%s: %s\n' % (self.logger.style.SQL_KEYWORD('Content-Length'), request.META['CONTENT_LENGTH'])
         if request.POST:
-            req += '\n%s\n' % self.logger.style.HTTP_INFO(urllib.urlencode(dict((k, v.encode('utf8')) for k, v in request.POST.items())))
+            req += '\n%s\n' % self.logger.style.HTTP_INFO(urllib.parse.urlencode(dict((k, v.encode('utf8')) for k, v in list(request.POST.items()))))
         if request.FILES:
-            req += '\n%s\n' % self.logger.style.HTTP_NOT_MODIFIED(urllib.urlencode(request.FILES))
+            req += '\n%s\n' % self.logger.style.HTTP_NOT_MODIFIED(urllib.parse.urlencode(request.FILES))
         self.logger.info('Full request:\n%s', req)
+
 
 class ResponseDumpModule(DevServerModule):
     """
@@ -64,6 +67,5 @@ class ResponseDumpModule(DevServerModule):
 
     def process_response(self, request, response):
         res = self.logger.style.SQL_FIELD('Status code: %s\n' % response.status_code)
-        res += '\n'.join(['%s: %s' % (self.logger.style.SQL_FIELD(k), v)
-            for k, v in response._headers.values()])
+        res += '\n'.join(['%s: %s' % (self.logger.style.SQL_FIELD(k), v) for k, v in list(response._headers.values())])
         self.logger.info('Full response:\n%s', res)

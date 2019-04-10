@@ -8,7 +8,6 @@ functionality such as real-time SQL debugging.
 
 :copyright: 2010 by David Cramer
 """
-
 __all__ = ('__version__', '__build__', '__docformat__', 'get_revision')
 __version__ = (0, 8, 0)
 __docformat__ = 'restructuredtext en'
@@ -38,6 +37,7 @@ def get_revision():
     if os.path.exists(path):
         return _get_git_revision(path)
     return None
+
 
 __build__ = get_revision()
 
