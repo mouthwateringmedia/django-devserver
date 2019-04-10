@@ -25,8 +25,8 @@ except ImportError:  # Django 1.6
 STATICFILES_APPS = ('django.contrib.staticfiles', 'staticfiles')
 
 
-def null_technical_500_response(request, exc_type, exc_value, tb):
-    raise exc_type, exc_value, tb
+# def null_technical_500_response(request, exc_type, exc_value, tb):
+#     raise exc_type, exc_value, tb
 
 
 def run(addr, port, wsgi_handler, mixin=None, ipv6=False):
@@ -153,9 +153,9 @@ class Command(BaseCommand):
             except ImportError as e:
                 self.stderr.write("WARNING: Unable to initialize werkzeug: %s\n" % e)
                 use_werkzeug = False
-            else:
-                from django.views import debug
-                debug.technical_500_response = null_technical_500_response
+            # else:
+            #     from django.views import debug
+            #     debug.technical_500_response = null_technical_500_response
 
         if DJANGO_VERSION < (1, 9): # validate was renamed to "check" in Django 1.9
             self.stdout.write("Validating models...\n\n")
