@@ -1,7 +1,7 @@
 import json
 
-from devserver.modules import DevServerModule
 from devserver import settings
+from devserver.modules import DevServerModule
 
 
 class AjaxDumpModule(DevServerModule):

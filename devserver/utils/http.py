@@ -1,18 +1,10 @@
-from __future__ import division
-from past.utils import old_div
 from datetime import datetime
 
+from devserver.utils.time import ms_from_timedelta
 from django.conf import settings
 from django.core.servers.basehttp import WSGIRequestHandler
-
-try:
-    from django.db import connections
-except ImportError:
-    # Django version < 1.2
-    from django.db import connection
-    connections = {'default': connection}
-
-from devserver.utils.time import ms_from_timedelta
+from django.db import connections
+from past.utils import old_div
 
 
 class SlimWSGIRequestHandler(WSGIRequestHandler):
@@ -21,6 +13,7 @@ class SlimWSGIRequestHandler(WSGIRequestHandler):
     as well as any request originating with a prefix included in
     ``DEVSERVER_IGNORED_PREFIXES``.
     """
+
     def handle(self, *args, **kwargs):
         self._start_request = datetime.now()
         return WSGIRequestHandler.handle(self, *args, **kwargs)
@@ -48,7 +41,7 @@ class SlimWSGIRequestHandler(WSGIRequestHandler):
             if self.path.startswith(path):
                 return
 
-        format += " (time: %.2fs; sql: %dms (%dq))"
+        format += ' (time: %.2fs; sql: %dms (%dq))'
         queries = [
             q for alias in connections
             for q in connections[alias].queries

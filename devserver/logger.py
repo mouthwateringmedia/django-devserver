@@ -1,12 +1,11 @@
-import logging
-import sys
-import re
 import datetime
+import logging
+import re
+import sys
 
-from django.utils.encoding import smart_str
 from django.core.management.color import color_style
 from django.utils import termcolors
-
+from django.utils.encoding import smart_str
 
 _bash_colors = re.compile(r'\x1b\[[^m]*m')
 

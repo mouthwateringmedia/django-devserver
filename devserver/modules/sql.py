@@ -2,27 +2,14 @@
 Based on initial work from django-debug-toolbar
 """
 import re
-
 from datetime import datetime
 
-try:
-    from django.db import connections
-except ImportError:
-    # Django version < 1.2
-    from django.db import connection
-    connections = {'default': connection}
-
-try:
-    from django.db.backends import utils # renamed in django 1.7
-except ImportError:
-    from django.db.backends import util as utils # removed in django 1.9
-from django.conf import settings as django_settings
-#from django.template import Node
-
-from devserver.modules import DevServerModule
-#from devserver.utils.stack import tidy_stacktrace, get_template_info
-from devserver.utils.time import ms_from_timedelta
 from devserver import settings
+from devserver.modules import DevServerModule
+from devserver.utils.time import ms_from_timedelta
+from django.conf import settings as django_settings
+from django.db import connections
+from django.db.backends import utils
 
 try:
     import sqlparse
@@ -41,11 +28,6 @@ def truncate_sql(sql, aggregates=True):
     if not aggregates and _sql_aggregates_re.match(sql):
         return sql
     return _sql_fields_re.sub('SELECT ... FROM', sql)
-
-# # TODO:This should be set in the toolbar loader as a default and panels should
-# # get a copy of the toolbar object with access to its config dictionary
-# SQL_WARNING_THRESHOLD = getattr(settings, 'DEVSERVER_CONFIG', {}) \
-#                             .get('SQL_WARNING_THRESHOLD', 500)
 
 
 try:

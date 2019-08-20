@@ -1,13 +1,7 @@
 from builtins import object
-try:
-    from threading import local
-except ImportError:
-    from django.utils._threading_local import local
-
 from datetime import datetime
 
 from devserver.utils.time import ms_from_timedelta
-
 
 __all__ = ('track', 'stats')
 
@@ -43,7 +37,7 @@ class StatCollection(object):
             'kwargs': kwargs,
             'time': this_time,
             'hit': value is not None,
-            #'stack': [s[1:] for s in inspect.stack()[2:]],
+            # 'stack': [s[1:] for s in inspect.stack()[2:]],
         })
         row = self.summary.setdefault(key, {'count': 0, 'time': 0.0, 'hits': 0})
         row['count'] += 1
@@ -88,6 +82,7 @@ class StatCollection(object):
 
     def get_calls(self, key):
         return self.calls.get(key, [])
+
 
 stats = StatCollection()
 

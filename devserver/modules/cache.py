@@ -1,6 +1,5 @@
-from django.core.cache import cache
-
 from devserver.modules import DevServerModule
+from django.core.cache import cache
 
 
 class CacheSummaryModule(DevServerModule):

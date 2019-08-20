@@ -1,32 +1,20 @@
-from django.conf import settings
-from django.core.management.commands.runserver import Command as BaseCommand
-from django.core.servers.basehttp import WSGIServer
-from django.core.handlers.wsgi import WSGIHandler
-
-import os
-import sys
-import imp
 import errno
-import socket
+import imp
+import os
 import socketserver
+import sys
 from optparse import make_option
 
 from devserver.handlers import DevServerHandler
 from devserver.utils.http import SlimWSGIRequestHandler
 from django import VERSION as DJANGO_VERSION
-
-try:
-    from django.core.servers.basehttp import (WSGIServerException as
-                                              wsgi_server_exc_cls)
-except ImportError:  # Django 1.6
-    wsgi_server_exc_cls = socket.error
-
+from django.conf import settings
+from django.core.handlers.wsgi import WSGIHandler
+from django.core.management.commands.runserver import Command as BaseCommand
+from django.core.servers.basehttp import WSGIServer
+from django.core.servers.basehttp import WSGIServerException as wsgi_server_exc_cls
 
 STATICFILES_APPS = ('django.contrib.staticfiles', 'staticfiles')
-
-
-# def null_technical_500_response(request, exc_type, exc_value, tb):
-#     raise exc_type, exc_value, tb
 
 
 def run(addr, port, wsgi_handler, mixin=None, ipv6=False):
@@ -67,7 +55,7 @@ class Command(BaseCommand):
                 '--nostatic', dest='use_static_files', action='store_false', default=True,
                 help='Tells Django to NOT automatically serve static files at STATIC_URL.'),
 
-    help = "Starts a lightweight Web server for development which outputs additional debug information."
+    help = 'Starts a lightweight Web server for development which outputs additional debug information.'
     args = '[optional port number, or ipaddr:port]'
 
     # Validation is called explicitly each time the server is reloaded.
@@ -151,46 +139,39 @@ class Command(BaseCommand):
             try:
                 from werkzeug import run_simple, DebuggedApplication
             except ImportError as e:
-                self.stderr.write("WARNING: Unable to initialize werkzeug: %s\n" % e)
+                self.stderr.write('WARNING: Unable to initialize werkzeug: %s\n' % e)
                 use_werkzeug = False
-            # else:
-            #     from django.views import debug
-            #     debug.technical_500_response = null_technical_500_response
 
-        if DJANGO_VERSION < (1, 9): # validate was renamed to "check" in Django 1.9
-            self.stdout.write("Validating models...\n\n")
-            self.validate(display_num_errors=True)
-        else:
-            self.stdout.write("Performing system checks...\n\n")
-            self.check(display_num_errors=True)
-            # Need to check migrations here, so can't use the
-            # requires_migrations_check attribute.
-            self.check_migrations()
+        self.stdout.write('Performing system checks...\n\n')
+        self.check(display_num_errors=True)
+        # Need to check migrations here, so can't use the
+        # requires_migrations_check attribute.
+        self.check_migrations()
 
         self.stdout.write((
-            "Django version %(version)s, using settings %(settings)r\n"
-            "Running django-devserver %(devserver_version)s\n"
-            "%(server_model)s %(server_type)s server is running at http://%(addr)s:%(port)s/\n"
-            "Quit the server with %(quit_command)s.\n"
+            'Django version %(version)s, using settings %(settings)r\n'
+            'Running django-devserver %(devserver_version)s\n'
+            '%(server_model)s %(server_type)s server is running at http://%(addr)s:%(port)s/\n'
+            'Quit the server with %(quit_command)s.\n'
         ) % {
-            "server_type": use_werkzeug and 'werkzeug' or 'Django',
-            "server_model": options['use_forked'] and 'Forked' or 'Threaded',
-            "version": self.get_version(),
-            "devserver_version": devserver.get_version(),
-            "settings": settings.SETTINGS_MODULE,
-            "addr": self._raw_ipv6 and '[%s]' % self.addr or self.addr,
-            "port": self.port,
-            "quit_command": quit_command,
+            'server_type': use_werkzeug and 'werkzeug' or 'Django',
+            'server_model': options['use_forked'] and 'Forked' or 'Threaded',
+            'version': self.get_version(),
+            'devserver_version': devserver.get_version(),
+            'settings': settings.SETTINGS_MODULE,
+            'addr': self._raw_ipv6 and '[%s]' % self.addr or self.addr,
+            'port': self.port,
+            'quit_command': quit_command,
         })
 
         # django.core.management.base forces the locale to en-us. We should
         # set it up correctly for the first request (particularly important
-        # in the "--noreload" case).
+        # in the '--noreload' case).
         translation.activate(settings.LANGUAGE_CODE)
 
         app = self.get_handler(*args, **options)
         if wsgi_app:
-            self.stdout.write("Using WSGI application %r\n" % wsgi_app)
+            self.stdout.write('Using WSGI application %r\n' % wsgi_app)
             if os.path.exists(os.path.abspath(wsgi_app)):
                 # load from file
                 app = imp.load_source('wsgi_app', os.path.abspath(wsgi_app)).application
@@ -225,27 +206,20 @@ class Command(BaseCommand):
         except wsgi_server_exc_cls as e:
             # Use helpful error messages instead of ugly tracebacks.
             ERRORS = {
-                errno.EACCES: "You don't have permission to access that port.",
-                errno.EADDRINUSE: "That port is already in use.",
-                errno.EADDRNOTAVAIL: "That IP address can't be assigned-to.",
+                errno.EACCES: 'You don\'t have permission to access that port.',
+                errno.EADDRINUSE: 'That port is already in use.',
+                errno.EADDRNOTAVAIL: 'That IP address can\'t be assigned-to.',
             }
-            if not isinstance(e, socket.error):  # Django < 1.6
-                ERRORS[13] = ERRORS.pop(errno.EACCES)
-                ERRORS[98] = ERRORS.pop(errno.EADDRINUSE)
-                ERRORS[99] = ERRORS.pop(errno.EADDRNOTAVAIL)
 
             try:
-                if not isinstance(e, socket.error):  # Django < 1.6
-                    error_text = ERRORS[e.args[0].args[0]]
-                else:
-                    error_text = ERRORS[e.errno]
+                error_text = ERRORS[e.errno]
             except (AttributeError, KeyError):
                 error_text = str(e)
-            sys.stderr.write(self.style.ERROR("Error: %s" % error_text) + '\n')
+            sys.stderr.write(self.style.ERROR('Error: %s' % error_text) + '\n')
             # Need to use an OS exit because sys.exit doesn't work in a thread
             os._exit(1)
 
         except KeyboardInterrupt:
             if shutdown_message:
-                self.stdout.write("%s\n" % shutdown_message)
+                self.stdout.write('%s\n' % shutdown_message)
             sys.exit(0)

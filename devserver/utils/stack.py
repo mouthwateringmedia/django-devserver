@@ -1,9 +1,7 @@
-from future import standard_library
-standard_library.install_aliases()
-import django
-import socketserver
 import os.path
+import socketserver
 
+import django
 from django.conf import settings
 from django.views.debug import linebreak_iter
 
@@ -23,7 +21,7 @@ def tidy_stacktrace(strace):
     for s in strace[:-1]:
         s_path = os.path.realpath(s[0])
         if getattr(settings, 'DEVSERVER_CONFIG', {}).get('HIDE_DJANGO_SQL', True) \
-            and django_path in s_path and not 'django/contrib' in s_path:
+                and django_path in s_path and 'django/contrib' not in s_path:
             continue
         if socketserver_path in s_path:
             continue

@@ -1,6 +1,6 @@
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 
 from devserver.modules import DevServerModule
 
@@ -44,7 +44,10 @@ class RequestDumpModule(DevServerModule):
     logger_name = 'request'
 
     def process_request(self, request):
-        req = self.logger.style.SQL_KEYWORD('%s %s %s\n' % (request.method, '?'.join((request.META['PATH_INFO'], request.META['QUERY_STRING'])), request.META['SERVER_PROTOCOL']))
+        req = self.logger.style.SQL_KEYWORD('%s %s %s\n' % (
+            request.method,
+            '?'.join((request.META['PATH_INFO'], request.META['QUERY_STRING'])), request.META['SERVER_PROTOCOL'])
+        )
         for var, val in list(request.META.items()):
             if var.startswith('HTTP_'):
                 var = var[5:].replace('_', '-').title()

@@ -1,5 +1,4 @@
-Django>=1.1
+Django>=2.0
 sqlparse
 werkzeug
-guppy
 Dozer

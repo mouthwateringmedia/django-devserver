@@ -1,13 +1,12 @@
-from past.utils import old_div
-from devserver.modules import DevServerModule
-from devserver.utils.time import ms_from_timedelta
-from devserver.settings import DEVSERVER_AUTO_PROFILE
-from django.template.defaultfilters import filesizeformat
-
-from datetime import datetime
-
 import functools
 import gc
+import tracemalloc
+from datetime import datetime
+
+from devserver.modules import DevServerModule
+from devserver.settings import DEVSERVER_AUTO_PROFILE
+from devserver.utils.time import ms_from_timedelta
+from past.utils import old_div
 
 
 class ProfileSummaryModule(DevServerModule):
@@ -43,34 +42,24 @@ class LeftOversModule(DevServerModule):
         self.logger.info('%s objects left in garbage', len(gc.garbage))
 
 
-try:
-    from guppy import hpy
-except ImportError:
-    import warnings
+class MemoryUseModule(DevServerModule):
+    """
+    Outputs a summary of memory usage of the course of a request.
+    """
+    logger_name = 'memory'
 
-    class MemoryUseModule(DevServerModule):
-        def __new__(cls, *args, **kwargs):
-            warnings.warn('MemoryUseModule requires guppy to be installed.')
-            return super(MemoryUseModule, cls).__new__(cls)
-else:
-    class MemoryUseModule(DevServerModule):
-        """
-        Outputs a summary of memory usage of the course of a request.
-        """
-        logger_name = 'profile'
+    def __init__(self, request):
+        super(MemoryUseModule, self).__init__(request)
+        # self.old_summary = self.get_summary()
+        tracemalloc.start()
 
-        def __init__(self, request):
-            super(MemoryUseModule, self).__init__(request)
-            self.hpy = hpy()
-            self.oldh = self.hpy.heap()
-            self.logger.info('heap size is %s', filesizeformat(self.oldh.size))
+    def process_complete(self, request):
+        snapshot = tracemalloc.take_snapshot()
+        top_stats = snapshot.statistics('lineno')
+        self.logger.info("[Top 10 Memory Use]")
+        for stat in top_stats[:10]:
+            self.logger.info(stat)
 
-        def process_complete(self, request):
-            newh = self.hpy.heap()
-            alloch = newh - self.oldh
-            dealloch = self.oldh - newh
-            self.oldh = newh
-            self.logger.info('%s allocated, %s deallocated, heap size is %s', *list(map(filesizeformat, [alloch.size, dealloch.size, newh.size])))
 
 try:
     from line_profiler import LineProfiler
@@ -81,6 +70,11 @@ except ImportError:
 
         def __new__(cls, *args, **kwargs):
             warnings.warn('LineProfilerModule requires line_profiler to be installed.')
+            warnings.warn('run: ')
+            warnings.warn('$ cd ../')
+            warnings.warn('$ git clone https://github.com/rkern/line_profiler.git')
+            warnings.warn('$ find line_profiler -name "*.pyx" -exec cython {} \\;')
+            warnings.warn('$ cd line_profiler && pip install')
             return super(LineProfilerModule, cls).__new__(cls)
 
         class devserver_profile(object):

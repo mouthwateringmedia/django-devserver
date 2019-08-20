@@ -1,7 +1,8 @@
 from devserver.models import MODULES
+from django.utils.deprecation import MiddlewareMixin
 
 
-class DevServerMiddleware(object):
+class DevServerMiddleware(MiddlewareMixin):
     def should_process(self, request):
         from django.conf import settings
 
@@ -39,7 +40,7 @@ class DevServerMiddleware(object):
         # has returned an HttpResponse and the following middleware won't see
         # the request. This happens most commonly with redirections - see
         # https://github.com/dcramer/django-devserver/issues/28 for details:
-        if not getattr(request, "_devserver_active", False):
+        if not getattr(request, '_devserver_active', False):
             return response
 
         if self.should_process(request):
@@ -59,7 +60,7 @@ class DevServerMiddleware(object):
         if self.should_process(request):
             for mod in MODULES:
                 mod.process_view(request, view_func, view_args, view_kwargs)
-        #return view_func(request, *view_args, **view_kwargs)
+        # return view_func(request, *view_args, **view_kwargs)
 
     def process_init(self, request):
         from devserver.utils.stats import stats

@@ -2,18 +2,12 @@ import socket
 import socketserver
 import threading
 
+from devserver.utils.http import SlimWSGIRequestHandler
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 from django.core.management import call_command
 from django.core.servers.basehttp import WSGIServer
-
-from devserver.utils.http import SlimWSGIRequestHandler
-
-try:
-    from django.core.servers.basehttp import (WSGIServerException as
-                                              wsgi_server_exc_cls)
-except ImportError:  # Django 1.6
-    wsgi_server_exc_cls = socket.error
+from django.core.servers.basehttp import WSGIServerException as wsgi_server_exc_cls
 
 
 class StoppableWSGIServer(WSGIServer):

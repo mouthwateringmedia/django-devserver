@@ -1,9 +1,8 @@
-import django
-from django.core import exceptions
-
-from devserver.logger import GenericLogger
 import logging
 
+import django
+from devserver.logger import GenericLogger
+from django.core import exceptions
 
 MODULES = []
 
