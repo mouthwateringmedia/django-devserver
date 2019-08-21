@@ -9,7 +9,7 @@ functionality such as real-time SQL debugging.
 :copyright: 2010 by David Cramer
 """
 __all__ = ('__version__', '__build__', '__docformat__', 'get_revision')
-__version__ = (0, 8, 0)
+__version__ = (0, 9, 0)
 __docformat__ = 'restructuredtext en'
 
 import os
