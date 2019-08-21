@@ -7,7 +7,9 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 from django.core.management import call_command
 from django.core.servers.basehttp import WSGIServer
-from django.core.servers.basehttp import WSGIServerException as wsgi_server_exc_cls
+
+
+wsgi_server_exc_cls = socket.error
 
 
 class StoppableWSGIServer(WSGIServer):

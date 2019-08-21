@@ -1,6 +1,7 @@
 import errno
 import imp
 import os
+import socket
 import socketserver
 import sys
 from optparse import make_option
@@ -12,7 +13,8 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIHandler
 from django.core.management.commands.runserver import Command as BaseCommand
 from django.core.servers.basehttp import WSGIServer
-from django.core.servers.basehttp import WSGIServerException as wsgi_server_exc_cls
+
+wsgi_server_exc_cls = socket.error
 
 STATICFILES_APPS = ('django.contrib.staticfiles', 'staticfiles')
 
