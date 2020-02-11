@@ -6,7 +6,6 @@ from datetime import datetime
 from devserver.modules import DevServerModule
 from devserver.settings import DEVSERVER_AUTO_PROFILE
 from devserver.utils.time import ms_from_timedelta
-from past.utils import old_div
 
 
 class ProfileSummaryModule(DevServerModule):
@@ -22,7 +21,7 @@ class ProfileSummaryModule(DevServerModule):
     def process_complete(self, request):
         duration = datetime.now() - self.start
 
-        self.logger.info('Total time to render was %.2fs', old_div(ms_from_timedelta(duration), 1000))
+        self.logger.info('Total time to render was %.2fs', ms_from_timedelta(duration) / 1000)
 
 
 class LeftOversModule(DevServerModule):

@@ -4,7 +4,6 @@ from devserver.utils.time import ms_from_timedelta
 from django.conf import settings
 from django.core.servers.basehttp import WSGIRequestHandler
 from django.db import connections
-from past.utils import old_div
 
 
 class SlimWSGIRequestHandler(WSGIRequestHandler):
@@ -47,7 +46,7 @@ class SlimWSGIRequestHandler(WSGIRequestHandler):
             for q in connections[alias].queries
         ]
         args = list(args) + [
-            old_div(ms_from_timedelta(duration), 1000),
+            ms_from_timedelta(duration) / 1000,
             sum(float(c.get('time', 0)) for c in queries) * 1000,
             len(queries),
         ]
